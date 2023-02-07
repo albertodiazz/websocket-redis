@@ -1,0 +1,53 @@
+# Con esto corremos el servidor de DJANGO
+# Junton con Daphne y Ngnix
+version: '3.8'
+
+services:
+
+  navegando-ws:
+    build: app/.
+    container_name: navegando-ws
+    ports:
+      - 8001:8001
+    volumes: 
+      - ./app:/app
+    environment:
+      # Obligamos a que nuestros print sean flush=True
+      # De esta manera evitamos escribir print(msg, flush=True) todo el tiempo
+      - PYTHONUNBUFFERED= 1
+      # Si esta en Debug 1 agarramos el id, si esta en 0 ocupamos la ip
+      # En ip no nos permite mas de una conexion por cliente
+      - Debug= 1
+        # Aqui seteamos el intervalo en segundos del ping de mi servidor a los clientes
+      - Ping= 5
+    # Comando para debugear y reiniciar en automatico el servidor
+    command: watchmedo auto-restart --pattern "*.py" --recursive --signal SIGTERM python app.py
+    networks:
+      - mide-network
+
+  broker-redis:
+    image: redis:latest
+    container_name: broker-redis
+    ports:
+      - 6379:6379
+    depends_on:
+      - navegando-ws
+    networks:
+      - mide-network
+
+  nginx-navegando:
+    image: nginx:1.23.1-alpine
+    container_name: nginx-navegando
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    restart: on-failure
+    ports:
+      - 80:80
+    depends_on:
+      - navegando-ws
+    networks:
+      - mide-network
+
+networks:
+  mide-network:
+    name: mide-network
