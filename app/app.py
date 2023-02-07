@@ -52,7 +52,12 @@ async def handler(websocket):
     # El ping no funciona para que cada conexion realizada nuestro servidor
     # enseguida mande un ping
     await websocket.ping()
-    idClientes = websocket.id.int
+    # Esto nos sirve para poner al cliente en cola
+    # y no dejar que cambien el nivel de forma simultanea
+    if bool(int(os.getenv('Debug'))):
+        idClientes = websocket.id.int
+    else:
+        idClientes = websocket.remote_address[0]
 
     while True:
         try:
@@ -67,6 +72,7 @@ async def handler(websocket):
                         r.set('valorObstaculo', 0)
                         r.set('level', 0)
                         r.delete('random')
+                        r.delete('players')
                         r.set('indexObstaculo', 0)
                         nextLevel = r.get('level')
                         r.set('respuestas', '')
@@ -89,17 +95,36 @@ async def handler(websocket):
                     generar una accion
                 '''
                 level = int(r.get('level'))
-                users = joinUsers.join(websocket, r)
-                # TODO: PENDIENTE
-                # Me falta logica de Respuestas y popoup
-                # Creo que esto lo puedo hacer con Misa
+                # users = joinUsers.join(websocket, r)
                 # Unirse = te cambio a nivel en automatico y agrego los ID
                 if level == 2:
+                    users = joinUsers.join(websocket, r)
                     if users == 4:
                         # Se unieron todos cambiamos el nivel en automatico
                         niveles.cambiarNivel(level, r)
-                # Respuestas = Get respuestas de obstaculos y si son Iguales
-                # PopUp
+                # TODO: PENTIENTE
+                elif level >= 5 or level <= 10:
+                    users = r.smembers('players')
+                    clienteEnSesion = len(list(map(int, users)))
+                    waitPlayers = joinUsers.joinTemporary(websocket, r)
+
+                    if str(r.get('respuestas')) == 'diferentes':
+                        # Pop up
+                        # Esperamos a los demas
+                        # Seteamos diferete '' esperando confiramacion de todos
+                        if clienteEnSesion >= waitPlayers:
+                            r.set('respuestas', '')
+                            r.delete('playersTemporary')
+
+                    elif str(r.get('respuestas')) == 'iguales':
+                        # Respuestas
+                        # Esperamos a los demas
+                        # Seteamos iguales '' esperando confiramacion de todos
+                        if clienteEnSesion >= waitPlayers:
+                            r.set('respuestas', '')
+                            r.delete('playersTemporary')
+                            r.set('respuestas', '')
+                            niveles.cambiarNivel(level, r, idClientes)
 
             elif 'obstaculos' in event['type']:
                 '''
@@ -163,7 +188,8 @@ async def handler(websocket):
         }
         websockets.broadcast(CLIENTS, json.dumps(data,
                                                  indent=4))
-        # print(message)
+        # print(f'Cliente: {idClientes}')
+        # print(data)
         # print(clientesID)
 
 

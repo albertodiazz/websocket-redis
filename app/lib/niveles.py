@@ -1,6 +1,7 @@
 import random
 from array import array
 from collections import Counter
+import os
 
 
 def handle_level_change_request(client_id, redis):
@@ -11,7 +12,7 @@ def handle_level_change_request(client_id, redis):
         redis.rpush(queue_key, client_id)
         print(f"Solicitud agregada a la cola por {client_id}")
         # Con esto solucionamos el doble click del cambio de niveles
-        redis.expire('level_change_queue', 2)
+        redis.expire('level_change_queue', int(os.getenv('Expire')))
 
 
 def cambiarNivel(currentLevel: int,

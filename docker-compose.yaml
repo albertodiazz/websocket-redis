@@ -20,6 +20,9 @@ services:
       - Debug= 1
         # Aqui seteamos el intervalo en segundos del ping de mi servidor a los clientes
       - Ping= 5
+        # Aqui seteamos el intervalo en segundos del cambio de nivel 
+        # Esto se hace con la intencion de que no puedan cambiar el nivel enseguida
+      - Expire= 1
     # Comando para debugear y reiniciar en automatico el servidor
     command: watchmedo auto-restart --pattern "*.py" --recursive --signal SIGTERM python app.py
     networks:

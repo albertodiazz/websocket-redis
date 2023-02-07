@@ -32,17 +32,18 @@ def logic(res: int, redis):
                 comparacion = respuestasCorrectas[index]
                 if comparacion == resAll[0]:
                     print('Respuesta Correcta')
-                    redis.set('respuestas', '')
+                    # redis.set('respuestas', '')
                     redis.set('respuestaAcertada', 1)
                     redis.delete('obstaculos')
                     redis.lpush('estoRespondieron', 1)
                 else:
                     print('Respuesta Incorrecta')
                     redis.delete('obstaculos')
-                    redis.set('respuestas', '')
+                    # redis.set('respuestas', '')
                     redis.set('respuestaAcertada', 0)
                     redis.lpush('estoRespondieron', 0)
             else:
+                # Aqui es el pop up
                 print('Alguien contesto diferente')
                 redis.set('respuestas', 'diferentes')
                 redis.delete('obstaculos')
