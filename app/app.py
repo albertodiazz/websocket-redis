@@ -61,6 +61,9 @@ async def handler(websocket):
     else:
         idClientes = websocket.remote_address[0]
 
+    # Aqui le mando su id o ip al cliente que se conecte
+    await websocket.send(str(idClientes))
+
     while True:
         try:
             message = await websocket.recv()
