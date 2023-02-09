@@ -1,4 +1,6 @@
 import os
+import socket
+import struct
 
 
 def joinTemporary(websocket, redis):
@@ -14,7 +16,8 @@ def joinTemporary(websocket, redis):
     if bool(int(os.getenv('Debug'))):
         redis.sadd('playersTemporary', websocket.id.int)
     else:
-        redis.sadd('playersTemporary', websocket.remote_address[0])
+        ip = socket.inet_aton(websocket.remote_address[0])
+        redis.sadd('players', struct.unpack('!L', ip)[0])
     clientesID = redis.smembers('playersTemporary')
     print(f"playersTemporary: {clientesID}")
     return len(list(map(int, clientesID)))
@@ -33,7 +36,8 @@ def join(websocket, redis):
     if bool(int(os.getenv('Debug'))):
         redis.sadd('players', websocket.id.int)
     else:
-        redis.sadd('players', websocket.remote_address[0])
+        ip = socket.inet_aton(websocket.remote_address[0])
+        redis.sadd('players', struct.unpack('!L', ip)[0])
     clientesID = redis.smembers('players')
     print(f"players: {clientesID}")
     return len(list(map(int, clientesID)))

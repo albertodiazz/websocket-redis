@@ -6,6 +6,8 @@ import redis
 import datetime
 import time
 import threading
+import socket
+import struct
 import os
 from lib import niveles
 from lib import joinUsers
@@ -140,8 +142,12 @@ async def handler(websocket):
                     r.srem('players', websocket.id.int)
                     print(f'ExitUser: {websocket.id.int}')
                 else:
-                    r.srem('players', websocket.remote_address[0])
-                    print(f'ExitUser: {websocket.remote_address[0]}')
+                    ipS = socket.inet_aton(websocket.remote_address[0])
+                    ip = struct.unpack('!L', ipS)[0]
+                    r.srem('players', ip)
+                    print(f'ExitUser: {ip}')
+                    # r.srem('players', websocket.remote_address[0])
+                    # print(f'ExitUser: {websocket.remote_address[0]}')
                 # Si hay menos de dos jugadores nos regresamos a standby
                 numUsers = r.smembers('players')
                 if len(list(map(int, numUsers))) <= 1:
@@ -160,8 +166,12 @@ async def handler(websocket):
                 r.srem('players', websocket.id.int)
                 print(f'WebsocketCloseOK: {websocket.id.int}')
             else:
-                r.srem('players', websocket.remote_address[0])
-                print(f'WebsocketCloseOK: {websocket.remote_address[0]}')
+                ipS = socket.inet_aton(websocket.remote_address[0])
+                ip = struct.unpack('!L', ipS)[0]
+                r.srem('players', ip)
+                print(f'WebsocketCloseError: {ip}')
+                # r.srem('players', websocket.remote_address[0])
+                # print(f'WebsocketCloseOK: {websocket.remote_address[0]}')
             break
         except websockets.exceptions.ConnectionClosedError:
             # TouchDesigner no desconecta bien el socket entonces
@@ -172,8 +182,12 @@ async def handler(websocket):
                 r.srem('players', websocket.id.int)
                 print(f'WebsocketCloseError: {websocket.id.int}')
             else:
-                r.srem('players', websocket.remote_address[0])
-                print(f'WebsocketCloseError: {websocket.remote_address[0]}')
+                ipS = socket.inet_aton(websocket.remote_address[0])
+                ip = struct.unpack('!L', ipS)[0]
+                r.srem('players', ip)
+                print(f'WebsocketCloseError: {ip}')
+                # r.srem('players', websocket.remote_address[0])
+                # print(f'WebsocketCloseError: {websocket.remote_address[0]}')
             break
         # Aqui es donde hacemos nuestro json y el broadcast
         # a todos los clientes para mandar siempre los cambios a todos
