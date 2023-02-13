@@ -8,11 +8,11 @@ def all_equal(iterable):
 
 def logic(res: int, redis):
     respuestasCorrectas = {
-        '5': 1,
+        '5': 0,
         '6': 0,
-        '7': 2,
+        '7': 1,
         '8': 1,
-        '9': 0,
+        '9': 2,
         '10': 2,
     }
     users = redis.smembers('players')

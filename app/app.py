@@ -60,7 +60,9 @@ async def handler(websocket):
         idClientes = websocket.id.int
     else:
         idClientes = websocket.remote_address[0]
+        localAddress = websocket.local_address[0]
 
+    print(idClientes, localAddress)
     # Aqui le mando su id o ip al cliente que se conecte
     await websocket.send(str(idClientes))
 
