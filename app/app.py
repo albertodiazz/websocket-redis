@@ -107,7 +107,6 @@ async def handler(websocket):
                     if users == 4:
                         # Se unieron todos cambiamos el nivel en automatico
                         niveles.cambiarNivel(level, r)
-                # TODO: PENTIENTE
                 elif level >= 5 or level <= 10:
                     users = r.smembers('players')
                     clienteEnSesion = len(list(map(int, users)))
@@ -117,7 +116,7 @@ async def handler(websocket):
                         # Pop up
                         # Esperamos a los demas
                         # Seteamos diferete '' esperando confiramacion de todos
-                        if clienteEnSesion >= waitPlayers:
+                        if waitPlayers >= clienteEnSesion:
                             r.set('respuestas', '')
                             r.delete('playersTemporary')
 
@@ -125,7 +124,7 @@ async def handler(websocket):
                         # Respuestas
                         # Esperamos a los demas
                         # Seteamos iguales '' esperando confiramacion de todos
-                        if clienteEnSesion >= waitPlayers:
+                        if waitPlayers >= clienteEnSesion:
                             r.set('respuestas', '')
                             r.delete('playersTemporary')
                             r.set('respuestas', '')
