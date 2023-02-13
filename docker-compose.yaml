@@ -17,7 +17,7 @@ services:
       - PYTHONUNBUFFERED= 1
       # Si esta en Debug 1 agarramos el id, si esta en 0 ocupamos la ip
       # En ip no nos permite mas de una conexion por cliente
-      - Debug= 0
+      - Debug= 1
         # Aqui seteamos el intervalo en segundos del ping de mi servidor a los clientes
       - Ping= 5
         # Aqui seteamos el intervalo en segundos del cambio de nivel 
