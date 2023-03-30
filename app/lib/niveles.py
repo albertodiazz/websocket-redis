@@ -27,34 +27,28 @@ def cambiarNivel(currentLevel: int,
         handle_level_change_request(clienteID, redis)
         if currentLevel >= 0 and currentLevel <= 4 - 1:
             nextLevel = currentLevel
-            nextLevel += 1
-            redis.delete('random')
-            redis.set('level', nextLevel)
-            redis.set('indexObstaculo', 0)
-            redis.set('valorObstaculo', 0)
-            redis.set('cronometro', 0)
+            if currentLevel == 4 - 1:
+                levelRandom = random.sample(range(5, 10), 4)
+                levelRandom = sorted(levelRandom, reverse=True)
+                redis.lpush('random', 100)
+                redis.lpush('random', *levelRandom)
+                rand = redis.lrange('random', 0, -1)
+                listInt = list(map(int, rand))
+                toArray = array('i', listInt)
+                nextLevel = toArray[0]
+                print(f'random: {toArray}')
+                print(f'toArray: {toArray[0]}')
+                redis.set('valorObstaculo', nextLevel)
+                redis.set('level', nextLevel)
+            else:
+                nextLevel += 1
+                redis.delete('random')
+                redis.set('level', nextLevel)
+                redis.set('indexObstaculo', 0)
+                redis.set('valorObstaculo', 0)
+                redis.set('cronometro', 0)
             print('......')
             # print(f'nextLevel: {nextLevel}')
-
-        elif currentLevel >= 5 - 1 and currentLevel <= 6 - 1 and valorObstaculo < 1: # noqa
-            # Aqui ponemos los niveles random
-            print('.,,,,,,,')
-            levelRandom = random.sample(range(5, 10), 4)
-            levelRandom = sorted(levelRandom, reverse=True)
-            # TODO: REFACTORY
-            # Esto lo agrego para poder recorrer el array ya que si no lo
-            # pongo el valor final me lo saltaba
-            # OJO esto se resuelve con el orden de ejeccucion
-            redis.lpush('random', 100)
-            redis.lpush('random', *levelRandom)
-            rand = redis.lrange('random', 0, -1)
-            listInt = list(map(int, rand))
-            toArray = array('i', listInt)
-            nextLevel = toArray[0]
-            print(f'random: {toArray}')
-            print(f'toArray: {toArray[0]}')
-            redis.set('valorObstaculo', nextLevel)
-            redis.set('level', nextLevel)
 
         elif currentLevel >= 6 - 1 and currentLevel <= 10 - 1: # noqa
             rand = redis.lrange('random', 0, -1)
