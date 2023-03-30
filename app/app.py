@@ -193,14 +193,14 @@ async def handler(websocket):
             break
         # Aqui es donde hacemos nuestro json y el broadcast
         # a todos los clientes para mandar siempre los cambios a todos
-
+        resFinal = True if r.get('resultadoFinal') == 'True' else False
         data = {
             'level': int(r.get('level')),
             'players': list(map(str, r.smembers('players'))),
             'respuestas': r.get('respuestas'),
             'respuestaAcertada': bool(int(r.get('respuestaAcertada'))),
             'indexObstaculo': int(r.get('indexObstaculo')),
-            'resultadoFinal': bool(r.get('resultadoFinal')),
+            'resultadoFinal': resFinal,
         }
         websockets.broadcast(CLIENTS, json.dumps(data,
                                                  indent=4))
